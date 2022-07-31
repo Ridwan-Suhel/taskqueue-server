@@ -20,6 +20,8 @@ async function run() {
   try {
     await client.connect();
     const productsCollection = client.db("taskqueue").collection("products");
+    const cartCollection = client.db("taskqueue").collection("cart_products");
+    const todosCollection = client.db("taskqueue").collection("todos");
 
     // get all products
     app.get("/products", async (req, res) => {
@@ -31,10 +33,43 @@ async function run() {
 
     // get single product by collection id
     app.get("/products/:id", async (req, res) => {
-      const id = req.params.id;
+      const id = req?.params?.id;
       const query = { _id: ObjectId(id) };
       const result = await productsCollection.findOne(query);
       res.send(result);
+    });
+
+    //add to cart produc
+    // app.post("/products/cart", async (req, res) => {
+    //   const cart = req.body;
+    //   const result = await cartCollection.insertOne(cart);
+    //   res.send(result);
+    // });
+
+    // all todos
+    app.post("/todos", async (req, res) => {
+      const query = req.body;
+      const result = await todosCollection.insertOne(query);
+      res.send(result);
+    });
+
+    app.put("/products/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const cart = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: cart,
+      };
+      const result = await cartCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
+
+    app.get("/cart", async (req, res) => {
+      const query = {};
+      const cursor = cartCollection.find(query);
+      const carts = await cursor.toArray();
+      res.send(carts);
     });
   } finally {
     // await client.close();
