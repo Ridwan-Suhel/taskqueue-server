@@ -53,6 +53,21 @@ async function run() {
       res.send(result);
     });
 
+    // get all todos
+    app.get("/todos", async (req, res) => {
+      const query = {};
+      const cursor = todosCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // get todos by specific user email
+    app.get("/todos/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await todosCollection.findOne({ email: email });
+      res.send(result);
+    });
+
     app.put("/products/cart/:id", async (req, res) => {
       const id = req.params.id;
       const cart = req.body;
