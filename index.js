@@ -61,13 +61,6 @@ async function run() {
       res.send(result);
     });
 
-    // get todos by specific user email
-    // app.get("/todos/:email", async (req, res) => {
-    //   const email = req.params.email;
-    //   const result = await todosCollection.findOne({ email: email });
-    //   res.send(result);
-    // });
-
     // geting all todos by specific user email
     app.get("/todos/:email", async (req, res) => {
       const email = req.params.email;
@@ -81,6 +74,31 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await todosCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // updating specific todos task by id
+    app.put("/todos/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const todoTask = req.body;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: todoTask,
+      };
+      const options = { upsert: true };
+      const result = await todosCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    //get todos by specific todo id
+    app.get("/todo/:id", async (req, res) => {
+      const id = req?.params?.id;
+      const query = { _id: ObjectId(id) };
+      const result = await todosCollection.findOne(query);
       res.send(result);
     });
 
